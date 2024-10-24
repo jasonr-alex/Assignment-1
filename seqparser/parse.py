@@ -89,37 +89,37 @@ class FastaParser(Parser):
         """
         TODO: returns the next fasta record as a 2-tuple of (header, sequence)
         """
-        header = None
-        sequence_lines = []
+        header = None # Initialize the header variable to None
+        sequence_lines = [] # List to accumulate sequence lines
         
-        for line in f_obj:
-            line = line.strip()
-            if line.startswith('>'):
-                if header:  # If we already have a header, return the previous record
-                    return (header, ''.join(sequence_lines))
+        for line in f_obj: # Iterate over each line in the file object
+            line = line.strip() # Remove leading/trailing whitespace from the line
+            if line.startswith('>'): # Check if the line is a header (starts with '>')
+                if header: # If there's an existing header, return the previous record
+                    return (header, ''.join(sequence_lines)) # Return the tuple of header and joined sequence
                 header = line[1:]  # Remove '>' from header
-                sequence_lines = []
+                sequence_lines = [] # Reset sequence lines for the new record
             else:
-                sequence_lines.append(line)
+                sequence_lines.append(line) # Append the line to the sequence list
         
-        if header:  # For the last record in the file
-            return (header, ''.join(sequence_lines))
+        if header: # Check if there was a header for the last record in the file
+            return (header, ''.join(sequence_lines)) # Return the last record as a tuple
         
-        return None
+        return None # Return None if no record was found
 
 class FastqParser(Parser):
     """
     Fastq Specific Parsing 
     """
-    def _get_record(self, f_obj: io.TextIOWrapper) -> Tuple[str, str, str]:
-       header = f_obj.readline().strip()
-       if not header:
-        return None  # End of file
-       sequence = f_obj.readline().strip()
-       f_obj.readline()  # Skip the '+' line
-       quality = f_obj.readline().strip()
+    def _get_record(self, f_obj: io.TextIOWrapper) -> Tuple[str, str, str]: # Read the header line and remove whitespace
+       header = f_obj.readline().strip() # Read the header line and remove whitespace
+       if not header: # Check if the header is empty (end of file)
+        return None  # Return None if we've reached the end of the file
+       sequence = f_obj.readline().strip() # Read the sequence line and remove whitespace
+       f_obj.readline() # Skip the '+' line, which is a placeholder in FASTQ format
+       quality = f_obj.readline().strip() # Read the quality line and remove whitespace
 
-       if header.startswith('@'):
-        return (header[1:], sequence, quality)
+       if header.startswith('@'): # Check if the header starts with '@', indicating a valid FASTQ format
+        return (header[1:], sequence, quality) # Return a tuple of header (without '@'), sequence, and quality
        else:
-        raise ValueError("Invalid FASTQ format: Missing '@' in header")
+        raise ValueError("Invalid FASTQ format: Missing '@' in header") # Raise an error if the format is invalid
