@@ -60,24 +60,15 @@ class Parser:
         need to keep all of them in memory. 
         
         """
-
-        # The proper way to open a file for reading and writing in python3 is to use the `with` / `as` keywords.
-        # and keep the I/O within the nested code block. This will save you from some really nasty bugs that
-        # sometimes close a file before everything you expect to be written/read is written/read. 
-        # 
-        # the interpretation of the following code is that for the lifetime of the filebuffer 
-        # returned by the `open` function it will be accessible as the variable `f_obj`, of type io.TextIOWrapper
         with open(self.filename, "r") as f_obj:
-            
-            # this loop will run forever or return an error, depending on your implementations of _get_record
-            # but we will leave it up to you to implement the fix! 
-
-            # hint: when reading a file, how do we know when to stop reading? what keyword should we use to stop a loop?
-
             while True:
-                rec = self.get_record(f_obj)
-                # TODO: stop the loop
-                yield rec
+                try:
+                    rec = self.get_record(f_obj)
+                    if rec is None:
+                        break
+                    yield rec
+                except StopIteration:
+                    break 
 
     def _get_record(self, f_obj: io.TextIOWrapper) -> Union[Tuple[str, str], Tuple[str, str, str]]:
         """
@@ -98,14 +89,37 @@ class FastaParser(Parser):
         """
         TODO: returns the next fasta record as a 2-tuple of (header, sequence)
         """
-
+        header = None
+        sequence_lines = []
+        
+        for line in f_obj:
+            line = line.strip()
+            if line.startswith('>'):
+                if header:  # If we already have a header, return the previous record
+                    return (header, ''.join(sequence_lines))
+                header = line[1:]  # Remove '>' from header
+                sequence_lines = []
+            else:
+                sequence_lines.append(line)
+        
+        if header:  # For the last record in the file
+            return (header, ''.join(sequence_lines))
+        
+        return None
 
 class FastqParser(Parser):
     """
     Fastq Specific Parsing 
     """
     def _get_record(self, f_obj: io.TextIOWrapper) -> Tuple[str, str, str]:
-        """
-        TODO: returns the next fastq record as a 3-tuple of (header, sequence, quality)
-        """
+       header = f_obj.readline().strip()
+       if not header:
+        return None  # End of file
+       sequence = f_obj.readline().strip()
+       f_obj.readline()  # Skip the '+' line
+       quality = f_obj.readline().strip()
 
+       if header.startswith('@'):
+        return (header[1:], sequence, quality)
+       else:
+        raise ValueError("Invalid FASTQ format: Missing '@' in header")
