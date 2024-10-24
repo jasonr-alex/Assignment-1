@@ -22,16 +22,33 @@ def test_freebie_transcribe_2():
 
         
 def test_transcribe():
-    """
-    TODO: Write your unit test for the
-    transcribe function here.
-    """
-    pass
+    # Positive Test Case
+    dna_sequence = "ATGCGTACGTTAGC"
+    expected_rna_sequence = "UACGCAUGCAAUCG"  # A -> U, T -> A, C -> G, G -> C
+    assert transcribe(dna_sequence) == expected_rna_sequence, f"Expected {expected_rna_sequence} but got {transcribe(dna_sequence)}"
+    print("Positive test case passed.")
+
+    # Negative Test Case
+    invalid_dna_sequence = "ATGCGTACGTXYZ"  # X, Y, Z are invalid characters
+    try:
+        result = transcribe(invalid_dna_sequence)
+        print("Negative test case failed: No error raised on invalid input.")
+    except KeyError as e:
+        print("Negative test case passed. Caught an error:", e)
 
 
 def test_reverse_transcribe():
-    """
-    TODO: Write your unit test for the
-    reverse transcribe function here.
-    """
-    pass
+    # Positive Test Case
+    rna_sequence = "UACGCAUGCAAUCG"
+    expected_reverse_sequence = "ATGCGTACGTAGC"  # A -> T, U -> A, C -> G, G -> C
+    assert reverse_transcribe(rna_sequence) == expected_reverse_sequence, f"Expected {expected_reverse_sequence} but got {reverse_transcribe(rna_sequence)}"
+    print("Positive test case passed.")
+
+    # Negative Test Case
+    invalid_rna_sequence = "UACGCAUGXYZ"  # X, Y, Z are invalid characters
+    try:
+        result = reverse_transcribe(invalid_rna_sequence)
+        print("Negative test case failed: No error raised on invalid input.")
+    except KeyError as e:
+        print("Negative test case passed. Caught an error:", e)
+

@@ -1,6 +1,12 @@
-name: CI 
+name: FastaParser, FastqParser, Transcribe, and Reverse Transcribe Workflow 
 
-on: [push]
+on:
+push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
