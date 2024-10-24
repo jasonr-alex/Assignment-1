@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "assignment_1"
+name = "parser_rna_forward_reverse"
 authors = [{name = "Jason Rivera", email = "jasonrivera.alex@gmail.com"}]
 readme = "README.md"
 license = {file = "LICENSE"}
